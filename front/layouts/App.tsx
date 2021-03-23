@@ -1,7 +1,11 @@
 import React from 'react';
+// 코드 스플리팅을 위한 lib
+import loadable from '@loadable/component';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import LogIn from '@pages/LogIn';
-import SignUp from '@pages/SignUp';
+
+// Lazy Load
+const LogIn = loadable(() => import('@pages/LogIn'));
+const SignUp = loadable(() => import('@pages/SignUp'));
 
 const App = () => {
   return (
