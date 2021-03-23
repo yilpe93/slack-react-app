@@ -2,7 +2,7 @@ import path from 'path';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 import webpack from 'webpack';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
-import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+// import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -76,13 +76,13 @@ const config: webpack.Configuration = {
     historyApiFallback: true, // react router
     port: 3090,
     publicPath: '/dist/',
-  //   proxy: {
-  //     '/api/': {
-  //       target: 'http://localhost:3095',
-  //       changeOrigin: true,
-  //       ws: true,
-  //     },
-  //   },
+    //   proxy: {
+    //     '/api/': {
+    //       target: 'http://localhost:3095',
+    //       changeOrigin: true,
+    //       ws: true,
+    //     },
+    //   },
   },
 };
 
