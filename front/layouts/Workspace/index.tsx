@@ -4,6 +4,23 @@ import axios from 'axios';
 import useSWR from 'swr';
 import { Redirect } from 'react-router';
 
+import {
+  AddButton,
+  Channels,
+  Chats,
+  Header,
+  LogOutButton,
+  MenuScroll,
+  ProfileImg,
+  ProfileModal,
+  RightMenu,
+  WorkspaceButton,
+  WorkspaceModal,
+  WorkspaceName,
+  Workspaces,
+  WorkspaceWrapper,
+} from './styles';
+
 const Workspace: FC = ({ children }) => {
   const { data, error, revalidate, mutate } = useSWR('/api/users', fetcher);
 
