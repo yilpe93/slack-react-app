@@ -1,11 +1,19 @@
 import React, { useState, useCallback } from 'react';
 import { Header, Form, Label, Input, LinkContainer, Button, Error, Success } from './styles';
 import axios from 'axios';
+import useSWR from 'swr';
+import fetcher from '@utils/fetcher';
+import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router';
 
 // custom Hooks
 import useInput from '@hooks/useInput';
 
 const SignUp = () => {
+  const { data, error, revalidate } = useSWR('/api/users', fetcher, {
+    dedupingInterval: 100000, // 주기적으로 실행되도록 설정
+  });
+
   const [email, onChangeEmail] = useInput('');
   const [nickname, onChangeNickname] = useInput('');
   const [password, setPassword] = useState('');
@@ -35,7 +43,6 @@ const SignUp = () => {
       e.preventDefault();
 
       if (!mismatchError && nickname) {
-        console.log('submit');
         setSignUpError('');
         setSignUpSuccess(false);
 
@@ -57,6 +64,14 @@ const SignUp = () => {
     },
     [email, nickname, password, passwordCheck, mismatchError],
   );
+
+  if (data === undefined) {
+    return <div>로딩중...</div>;
+  }
+
+  if (data) {
+    return <Redirect to="/workspace/channel" />;
+  }
 
   return (
     <div id="container">
@@ -100,7 +115,7 @@ const SignUp = () => {
       </Form>
       <LinkContainer>
         이미 회원이신가요?&nbsp;
-        <a href="/login">로그인 하러가기</a>
+        <Link to="/login">로그인 하러가기</Link>
       </LinkContainer>
     </div>
   );
