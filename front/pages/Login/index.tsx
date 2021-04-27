@@ -9,9 +9,16 @@ import axios from 'axios';
 import useSWR from 'swr';
 
 const LogIn = () => {
-  const { data, error, revalidate } = useSWR('/api/users', fetcher, {
-    dedupingInterval: 100000, // 주기적으로 실행되도록 설정
+  const { data, error, revalidate, mutate } = useSWR('/api/users', fetcher, {
+    dedupingInterval: 10000, // 캐시 유지시간
   });
+
+  /**
+   * revalidate : 서버에 요청하여 data를 수정
+   * mutate(data, shouldRevaildate) : 서버에 요청하지 않고 data를 수정, chaching된 data 사용
+      - shouldRevaildate: true  => PESSIMISTIC UI
+      - shouldRevaildate: false => OPTIMISTIC UI
+  */
 
   const [logInError, setLogInError] = useState(false);
   const [email, onChangeEmail] = useInput('');
@@ -24,8 +31,9 @@ const LogIn = () => {
 
       axios
         .post('/api/users/login', { email, password }, { withCredentials: true })
-        .then(() => {
-          revalidate(); //
+        .then((response) => {
+          // revalidate();
+          mutate(response.data, false);
         })
         .catch((err) => {
           console.error(err.response?.data?.statusCode === 401);

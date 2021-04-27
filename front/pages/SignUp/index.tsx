@@ -11,7 +11,7 @@ import useInput from '@hooks/useInput';
 
 const SignUp = () => {
   const { data, error, revalidate } = useSWR('/api/users', fetcher, {
-    dedupingInterval: 100000, // 주기적으로 실행되도록 설정
+    dedupingInterval: 10000, // 캐시 유지시간
   });
 
   const [email, onChangeEmail] = useInput('');
