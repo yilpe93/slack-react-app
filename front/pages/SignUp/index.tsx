@@ -1,17 +1,18 @@
 import React, { useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router';
 import { Header, Form, Label, Input, LinkContainer, Button, Error, Success } from './styles';
 import axios from 'axios';
 import useSWR from 'swr';
 import fetcher from '@utils/fetcher';
-import { Link } from 'react-router-dom';
-import { Redirect } from 'react-router';
+import { IUser } from '@typings/db';
 
 // custom Hooks
 import useInput from '@hooks/useInput';
 
 const SignUp = () => {
-  const { data, error, revalidate } = useSWR('/api/users', fetcher, {
-    dedupingInterval: 10000, // 캐시 유지시간
+  const { data, error, revalidate } = useSWR<IUser | false>('/api/users', fetcher, {
+    dedupingInterval: 2000, // 캐시 유지시간
   });
 
   const [email, onChangeEmail] = useInput('');
