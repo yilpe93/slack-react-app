@@ -1,16 +1,16 @@
-import useInput from '@hooks/useInput';
 import React, { useCallback, useState } from 'react';
-import { Button, Error, Form, Header, Input, Label, LinkContainer } from '@pages/SignUp/styles';
 import { Redirect } from 'react-router';
-
-import fetcher from '@utils/fetcher';
-
+import { Button, Error, Form, Header, Input, Label, LinkContainer } from '@pages/SignUp/styles';
 import axios from 'axios';
 import useSWR from 'swr';
+import fetcher from '@utils/fetcher';
+import { IUser } from '@typings/db';
+
+import useInput from '@hooks/useInput';
 
 const LogIn = () => {
-  const { data, error, revalidate, mutate } = useSWR('/api/users', fetcher, {
-    dedupingInterval: 10000, // 캐시 유지시간
+  const { data, error, revalidate, mutate } = useSWR<IUser | false>('/api/users', fetcher, {
+    dedupingInterval: 2000, // 캐시 유지시간
   });
 
   /**
