@@ -2,12 +2,12 @@ import React, { VFC, useCallback, useState } from 'react';
 import axios from 'axios';
 import useSWR from 'swr';
 import fetcher from '@utils/fetcher';
-import { Redirect, Switch, Route, Link } from 'react-router-dom';
+import { Redirect, Switch, Route, Link, useParams } from 'react-router-dom';
 import gravatar from 'gravatar';
 import { toast } from 'react-toastify';
 // 코드 스플리팅을 위한 lib
 import loadable from '@loadable/component';
-import { IUser } from '@typings/db';
+import { IChannel, IUser } from '@typings/db';
 import useInput from '@hooks/useInput';
 
 import Menu from '@components/Menu';
@@ -44,9 +44,15 @@ const Workspace: VFC = () => {
   const [newWorkspace, onChangeNewWorkspace, setNewWorkspace] = useInput('');
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
 
+  const { workspace } = useParams<{ workspace: string }>();
+
+  /* Get: User */
   const { data: userData, error, revalidate, mutate } = useSWR<IUser | false>('/api/users', fetcher, {
     dedupingInterval: 2000,
   });
+
+  /* Get: Channels */
+  const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
 
   const onLogOut = useCallback(() => {
     axios.post('/api/users/logout', null, { withCredentials: true }).then(() => {
@@ -157,13 +163,16 @@ const Workspace: VFC = () => {
                 <button onClick={onLogOut}>로그아웃</button>
               </WorkspaceModal>
             </Menu>
+            {channelData?.map((channel, index) => (
+              <div key={index}>{channel.name}</div>
+            ))}
           </MenuScroll>
         </Channels>
         <Chats>
           <Switch>
             {/* 중첩 라우터 -> 계층 구조를 유지해야한다. */}
-            <Route path="/workspace/channel" component={Channel} />
-            <Route path="/workspace/dm" component={DirectMessage} />
+            <Route path="/workspace/:workspace/channel" component={Channel} />
+            <Route path="/workspace/:workspace/dm/:id" component={DirectMessage} />
           </Switch>
         </Chats>
       </WorkspaceWrapper>
@@ -180,7 +189,11 @@ const Workspace: VFC = () => {
           <Button type="submit">생성하기</Button>
         </form>
       </Modal>
-      <CreateChannelModal show={showCreateChannelModal} onCloseModal={onCloseModal} />
+      <CreateChannelModal
+        show={showCreateChannelModal}
+        onCloseModal={onCloseModal}
+        setShowCreateChannelModal={setShowCreateChannelModal}
+      />
     </div>
   );
 };

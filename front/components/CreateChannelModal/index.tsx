@@ -1,17 +1,54 @@
-import React, { VFC, useCallback } from 'react';
-import Modal from '@components/Modal';
+import React, { VFC, useCallback, memo } from 'react';
+import { useParams } from 'react-router';
+import useSWR from 'swr';
+import fetcher from '@utils/fetcher';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+
 import { Button, Input, Label } from '@pages/SignUp/styles';
+import Modal from '@components/Modal';
 import useInput from '@hooks/useInput';
+import { IChannel, IUser } from '@typings/db';
 
 interface Props {
   show: boolean;
   onCloseModal: () => void;
-  setShowCreateChannelModal?: boolean;
+  setShowCreateChannelModal: (flag: boolean) => void;
 }
 
-const CreateChannelModal: VFC<Props> = ({ show, onCloseModal }) => {
-  const [newChannel, onChaneNewChannel] = useInput('');
-  const onCreateChannel = useCallback(() => {}, []);
+const CreateChannelModal: VFC<Props> = memo(({ show, onCloseModal, setShowCreateChannelModal }) => {
+  const [newChannel, onChaneNewChannel, setNewChannel] = useInput('');
+  const { workspace, channel } = useParams<{ workspace: string, channel: string }>();
+
+  const { data: userData, error, revalidate, mutate } = useSWR<IUser | false>('/api/users', fetcher, {
+    dedupingInterval: 2000,
+  });
+
+  const { data: channelData, revalidate: revalidateChannel } = useSWR<IChannel[]>(
+    userData ? `/api/workspaces/${workspace}/channels` : null,
+    fetcher,
+  );
+
+  const onCreateChannel = useCallback(
+    (e) => {
+      e.preventDefault();
+
+      axios
+        .post(`/api/workspaces/${workspace}/channels`, {
+          name: newChannel,
+        })
+        .then(() => {
+          setShowCreateChannelModal(false);
+          revalidateChannel();
+          setNewChannel('');
+        })
+        .catch((error) => {
+          console.dir(error);
+          toast.error(error.response?.data, { position: 'bottom-center' });
+        });
+    },
+    [newChannel],
+  );
 
   return (
     <Modal show={show} onCloseModal={onCloseModal}>
@@ -24,6 +61,6 @@ const CreateChannelModal: VFC<Props> = ({ show, onCloseModal }) => {
       </form>
     </Modal>
   );
-};
+});
 
 export default CreateChannelModal;
